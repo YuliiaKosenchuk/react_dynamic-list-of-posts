@@ -44,7 +44,7 @@ export const App = () => {
       .catch(() => new Error('Failed to fetch users'));
   }, []);
 
-  const handleUserPosts = (user: User) => {
+  const fetchUserPosts = (user: User) => {
     setShowPostLoader(true);
     getUserPosts(user.id)
       .then(res => {
@@ -59,7 +59,7 @@ export const App = () => {
       });
   };
 
-  const handleShowComment = (currentPost: Post) => {
+  const fetchPostComments = (currentPost: Post) => {
     setIsSidebarVisible(currentPost.id);
     setShowCommentLoader(true);
 
@@ -78,7 +78,7 @@ export const App = () => {
       });
   };
 
-  const handleDeleteComment = (commentId: number) => {
+  const removeComment = (commentId: number) => {
     deleteComment(commentId)
       .then(() => {
         setPostComments(prevPostComments =>
@@ -90,7 +90,7 @@ export const App = () => {
       .catch(() => new Error('Failed to delete comment'));
   };
 
-  const addComment = (newComment: CommentData) => {
+  const createComment = (newComment: CommentData) => {
     setIsAddingComment(true);
     addNewComment(newComment)
       .then(res => {
@@ -111,7 +111,7 @@ export const App = () => {
                   users={users}
                   setUserSelected={setUserSelected}
                   userSelected={userSelected}
-                  handleUserPosts={handleUserPosts}
+                  handleUserPosts={fetchUserPosts}
                   setShowSideBar={setIsSidebarVisible}
                 />
               </div>
@@ -135,7 +135,7 @@ export const App = () => {
                 {userPosts.length > 0 && !showPostLoader && (
                   <PostsList
                     userPosts={userPosts}
-                    handleShowComment={handleShowComment}
+                    handleShowComment={fetchPostComments}
                     showSideBar={isSidebarVisible}
                     setShowSideBar={setIsSidebarVisible}
                     setShowCommentForm={setIsCommentFormVisible}
@@ -172,8 +172,8 @@ export const App = () => {
                 postComments={postComments}
                 selectedPost={selectedPost}
                 errorsComment={hasCommentError}
-                onDeleteComment={handleDeleteComment}
-                onAddComment={addComment}
+                onDeleteComment={removeComment}
+                onAddComment={createComment}
                 isButtonAddLoading={isAddingComment}
                 onShowCommentFormChange={setIsCommentFormVisible}
                 isCommentFormVisible={isCommentFormVisible}
