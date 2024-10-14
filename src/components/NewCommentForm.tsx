@@ -23,7 +23,7 @@ export const NewCommentForm: React.FC<Props> = ({
 
   let newComment: CommentData;
 
-  const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleFormSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     setNameError(false);
@@ -64,7 +64,7 @@ export const NewCommentForm: React.FC<Props> = ({
     }
   };
 
-  const handleClearForm = () => {
+  const handleFormClear = () => {
     setName('');
     setEmail('');
     setBodyComment('');
@@ -74,7 +74,7 @@ export const NewCommentForm: React.FC<Props> = ({
   };
 
   return (
-    <form data-cy="NewCommentForm" onSubmit={onSubmit}>
+    <form data-cy="NewCommentForm" onSubmit={handleFormSubmit}>
       <div className="field" data-cy="NameField">
         <label className="label" htmlFor="comment-author-name">
           Author Name
@@ -194,11 +194,10 @@ export const NewCommentForm: React.FC<Props> = ({
         </div>
 
         <div className="control">
-          {/* eslint-disable-next-line react/button-has-type */}
           <button
             type="reset"
             className="button is-link is-light"
-            onClick={handleClearForm}
+            onClick={handleFormClear}
           >
             Clear
           </button>

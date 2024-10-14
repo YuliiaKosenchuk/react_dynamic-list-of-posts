@@ -27,19 +27,21 @@ export const App = () => {
   const [userSelected, setUserSelected] = useState<User | null>(null);
   const [showPostLoader, setShowPostLoader] = useState<boolean>(false);
   const [showCommentLoader, setShowCommentLoader] = useState<boolean>(false);
-  const [buttonAddLoading, setButtonAddLoading] = useState(false);
+  const [isAddingComment, setIsAddingComment] = useState(false);
   const [userPosts, setUserPosts] = useState<Post[]>([]);
   const [selectedPost, setSelectedPost] = useState<Post | null>(null);
-  const [showSideBar, setShowSideBar] = useState<number | null>(null);
+  const [isSidebarVisible, setIsSidebarVisible] = useState<number | null>(null);
   const [postComments, setPostComments] = useState<Comment[]>([]);
-  const [errorsPost, setErrorsPost] = useState<boolean>(false);
-  const [errorsComment, setErrorsComment] = useState<boolean>(false);
-  const [showCommentForm, setShowCommentForm] = useState(false);
+  const [hasPostError, setHasPostError] = useState<boolean>(false);
+  const [hasCommentError, setHasCommentError] = useState<boolean>(false);
+  const [isCommentFormVisible, setIsCommentFormVisible] = useState(false);
 
   useEffect(() => {
-    getUsers().then(res => {
-      setUsers(res as User[]);
-    });
+    getUsers()
+      .then(res => {
+        setUsers(res as User[]);
+      })
+      .catch(() => new Error('Failed to fetch users'));
   }, []);
 
   const handleUserPosts = (user: User) => {
@@ -47,10 +49,10 @@ export const App = () => {
     getUserPosts(user.id)
       .then(res => {
         setUserPosts(res as Post[]);
-        setErrorsPost(false);
+        setHasPostError(false);
       })
       .catch(() => {
-        setErrorsPost(true);
+        setHasPostError(true);
       })
       .finally(() => {
         setShowPostLoader(false);
@@ -58,7 +60,7 @@ export const App = () => {
   };
 
   const handleShowComment = (currentPost: Post) => {
-    setShowSideBar(currentPost.id);
+    setIsSidebarVisible(currentPost.id);
     setShowCommentLoader(true);
 
     setSelectedPost(currentPost);
@@ -66,10 +68,10 @@ export const App = () => {
     getUserPostComments(currentPost.id)
       .then(res => {
         setPostComments(res as Comment[]);
-        setErrorsComment(false);
+        setHasCommentError(false);
       })
       .catch(() => {
-        setErrorsComment(true);
+        setHasCommentError(true);
       })
       .finally(() => {
         setShowCommentLoader(false);
@@ -77,19 +79,25 @@ export const App = () => {
   };
 
   const handleDeleteComment = (commentId: number) => {
-    deleteComment(commentId).then(() => {
-      setPostComments(prevPostComments =>
-        prevPostComments.filter((comment: Comment) => comment.id !== commentId),
-      );
-    });
+    deleteComment(commentId)
+      .then(() => {
+        setPostComments(prevPostComments =>
+          prevPostComments.filter(
+            (comment: Comment) => comment.id !== commentId,
+          ),
+        );
+      })
+      .catch(() => new Error('Failed to delete comment'));
   };
 
   const addComment = (newComment: CommentData) => {
-    setButtonAddLoading(true);
-    addNewComment(newComment).then(res => {
-      setPostComments([...postComments, res as Comment]);
-      setButtonAddLoading(false);
-    });
+    setIsAddingComment(true);
+    addNewComment(newComment)
+      .then(res => {
+        setPostComments([...postComments, res as Comment]);
+        setIsAddingComment(false);
+      })
+      .catch(() => new Error('Failed to add comment'));
   };
 
   return (
@@ -104,7 +112,7 @@ export const App = () => {
                   setUserSelected={setUserSelected}
                   userSelected={userSelected}
                   handleUserPosts={handleUserPosts}
-                  setShowSideBar={setShowSideBar}
+                  setShowSideBar={setIsSidebarVisible}
                 />
               </div>
 
@@ -115,7 +123,7 @@ export const App = () => {
 
                 {showPostLoader && <Loader />}
 
-                {errorsPost && (
+                {hasPostError && (
                   <div
                     className="notification is-danger"
                     data-cy="PostsLoadingError"
@@ -128,15 +136,15 @@ export const App = () => {
                   <PostsList
                     userPosts={userPosts}
                     handleShowComment={handleShowComment}
-                    showSideBar={showSideBar}
-                    setShowSideBar={setShowSideBar}
-                    setShowCommentForm={setShowCommentForm}
+                    showSideBar={isSidebarVisible}
+                    setShowSideBar={setIsSidebarVisible}
+                    setShowCommentForm={setIsCommentFormVisible}
                   />
                 )}
                 {userSelected &&
                   userPosts.length === 0 &&
                   !showPostLoader &&
-                  !errorsPost && (
+                  !hasPostError && (
                     <div
                       className="notification is-warning"
                       data-cy="NoPostsYet"
@@ -155,20 +163,20 @@ export const App = () => {
               'is-parent',
               'is-8-desktop',
               'Sidebar',
-              { 'Sidebar--open': showSideBar },
+              { 'Sidebar--open': isSidebarVisible },
             )}
           >
             <div className="tile is-child box is-success ">
               <PostDetails
-                showCommentLoader={showCommentLoader}
+                isCommentLoading={showCommentLoader}
                 postComments={postComments}
                 selectedPost={selectedPost}
-                errorsComment={errorsComment}
-                handleDeleteComment={handleDeleteComment}
-                addComment={addComment}
-                buttonAddLoading={buttonAddLoading}
-                setShowCommentForm={setShowCommentForm}
-                showCommentForm={showCommentForm}
+                errorsComment={hasCommentError}
+                onDeleteComment={handleDeleteComment}
+                onAddComment={addComment}
+                isButtonAddLoading={isAddingComment}
+                onShowCommentFormChange={setIsCommentFormVisible}
+                isCommentFormVisible={isCommentFormVisible}
                 userSelected={userSelected}
               />
             </div>

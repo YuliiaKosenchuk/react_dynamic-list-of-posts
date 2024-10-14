@@ -6,32 +6,32 @@ import { Post } from '../types/Post';
 import { User } from '../types/User';
 
 type Props = {
-  showCommentLoader: boolean;
+  isCommentLoading: boolean;
   postComments: Comment[];
   selectedPost: Post | null;
   errorsComment: boolean;
-  handleDeleteComment: (commentId: number) => void;
-  addComment: (newComment: CommentData) => void;
-  buttonAddLoading: boolean;
-  setShowCommentForm: (item: boolean) => void;
-  showCommentForm: boolean;
+  onDeleteComment: (commentId: number) => void;
+  onAddComment: (newComment: CommentData) => void;
+  isButtonAddLoading: boolean;
+  onShowCommentFormChange: (item: boolean) => void;
+  isCommentFormVisible: boolean;
   userSelected: User | null;
 };
 
 export const PostDetails: React.FC<Props> = ({
-  showCommentLoader,
+  isCommentLoading,
   postComments,
   selectedPost,
   errorsComment,
-  handleDeleteComment,
-  addComment,
-  buttonAddLoading,
-  setShowCommentForm,
-  showCommentForm,
+  onDeleteComment,
+  onAddComment,
+  isButtonAddLoading,
+  onShowCommentFormChange,
+  isCommentFormVisible,
   userSelected,
 }) => {
   useEffect(() => {
-    setShowCommentForm(false);
+    onShowCommentFormChange(false);
   }, [selectedPost]);
 
   if (!selectedPost || userSelected?.id !== selectedPost.userId) {
@@ -48,7 +48,7 @@ export const PostDetails: React.FC<Props> = ({
         </div>
 
         <div className="block">
-          {showCommentLoader ? (
+          {isCommentLoading ? (
             <Loader />
           ) : (
             <>
@@ -84,7 +84,7 @@ export const PostDetails: React.FC<Props> = ({
                           type="button"
                           className="delete is-small"
                           aria-label="delete"
-                          onClick={() => handleDeleteComment(comment.id)}
+                          onClick={() => onDeleteComment(comment.id)}
                         ></button>
                       </div>
 
@@ -94,12 +94,12 @@ export const PostDetails: React.FC<Props> = ({
                     </article>
                   ))}
 
-                  {!showCommentForm && (
+                  {!isCommentFormVisible && (
                     <button
                       data-cy="WriteCommentButton"
                       type="button"
                       className="button is-link"
-                      onClick={() => setShowCommentForm(true)}
+                      onClick={() => onShowCommentFormChange(true)}
                     >
                       Write a comment
                     </button>
@@ -109,10 +109,10 @@ export const PostDetails: React.FC<Props> = ({
             </>
           )}
         </div>
-        {showCommentForm && (
+        {isCommentFormVisible && (
           <NewCommentForm
-            addComment={addComment}
-            buttonAddLoading={buttonAddLoading}
+            addComment={onAddComment}
+            buttonAddLoading={isButtonAddLoading}
             selectedPost={selectedPost}
           />
         )}
